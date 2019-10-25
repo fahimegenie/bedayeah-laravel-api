@@ -4,63 +4,50 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Request;
-use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
 
     public function welcomeEmail(){
+        dd("oka");
+        $endpoint = "https://testing.egenienext.com:3004/v1/users/signup";
 
-        $client = new \GuzzleHttp\Client(['verify' => false]);
+        $this->curlGet($endpoint);
         
-        $endpoint = "https://testing.egenienext.com:3004/v1​/users​/signup";
-        
-        $myBody['name'] = "ali khan";
-        $myBody['email'] = 'ali@example.com';
+        $myBody['name'] = "faheem ";
+        $myBody['email'] = 'mfahim@egenienext.com';
         $myBody['password'] = 'password@1';
+        // $endpoint = "https://testing.egenienext.com:3004/v1/users/checkAuth";
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $endpoint,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30000,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($myBody),
+                CURLOPT_HTTPHEADER => array(
+                    // Set here requred headers
+                    "accept: */*",
+                    "accept-language: en-US,en;q=0.8",
+                    "content-type: application/json",
+                ),
+            ));
 
-        $post = [
-            'name' => "ali khan",
-            'email' => 'ali@example.com',
-            'password' => 'password@1'
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $response = curl_exec($ch);
-        var_export($response);
-        exit;
-        $data = $this->curlPost($endpoint,$myBody);
-        dd($data);
-        $request = $client->post($endpoint,  ['body'=>$myBody]);
-        $response = $request->send();
-        dd($response);
-        // $myBody['auth'] = "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYjFjM2FkNTM0NTNhMDAyYWZmZmEwYiIsIm5hbWUiOiJmYWhpbSIsImVtYWlsIjoiZmFoaW0uZWdlbmllQGdtYWlsLmNvbSIsImlhdCI6MTU3MTkzMTA1MywiZXhwIjoxNTcyNTM1ODUzfQ.pGQFaxp73W55bo3dfyQ3Xlf-IEhwCr1tE6WZ9WZUpCE";
-        // $request = $client->post($url,  ['form_params'=>$myBody]);
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
 
-        $client = new \GuzzleHttp\Client(['verify' => false]);
-        $response = $client->request('POST', $endpoint, ['query' => [
-            'name'=>'ali khan',
-            'email'=>'abc@example.com',
-            'password'=>'password@1'
-        ]]);
+            curl_close($curl);
 
-        // $response = $client->request('POST', 'https://testing.egenienext.com:3004/v1/users/verifyEmail', [
-        //     'raw' => json_encode([
-        //         'auth' => 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYjFjM2FkNTM0NTNhMDAyYWZmZmEwYiIsIm5hbWUiOiJmYWhpbSIsImVtYWlsIjoiZmFoaW0uZWdlbmllQGdtYWlsLmNvbSIsImlhdCI6MTU3MTkzMTA1MywiZXhwIjoxNTcyNTM1ODUzfQ.pGQFaxp73W55bo3dfyQ3Xlf-IEhwCr1tE6WZ9WZUpCE',
-        //     ]),
-        //     'headers' => ['Content-Type' => 'application/json'],
-        //     // If you want more informations during request
-        //     'debug' => true
-        // ]);
-
-        dd($response);
-        $response = $response->send();
-    
-        dd($response);
+            if ($err) {
+                dd("cURL Error #:" . $err);
+            } else {
+                dd(json_decode($response));
+            }
+            dd();
 
         $email = 'abc@gmail.com';
         $data = array(
@@ -69,7 +56,7 @@ class AuthController extends Controller
             'message' => 'messages ',
         );
         Mail::send('emails/welcome', ['data' => $data], function ($message) use ($email) {
-            $message->to($email, $email)->subject('Contact Us');
+            $message->to($email, $email)->subject('');
         });
     }
 
@@ -85,22 +72,6 @@ class AuthController extends Controller
         });
     }
 
-
-    
-
-    function curlPost($url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-        if ($error !== '') {
-            throw new \Exception($error);
-        }
-    
-        return $response;
-    }
+   
 
 }
